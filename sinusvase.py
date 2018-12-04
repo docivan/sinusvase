@@ -12,18 +12,53 @@ height = 15
 r_xy_multiplier = 0.5
 r_z_multiplier = 0.5
 
-abs_mode = False
+abs_mode = True
 
 subdiv_xy = 60  # points per ring
 subdiv_z = 60  # rings in total
 
-period_xy = 2  # periods of sinus func along each ring
-period_z = 2  # periods of sinus func along vase edge
-spiral_turns = 2  # how many 360 deg turns around vase
+func_xy = "f_sin"
+func_z = "f_swt"
+
+period_xy = 0  # periods of func along each ring
+period_z = 2  # periods of func along vase edge
+spiral_turns = 0.5  # how many 360 deg turns around vase
 
 # GLOBALS
 
 rings = []
+
+def norm_rad(rad):
+    if rad > math.pi * 2:
+        n = math.floor(rad / (math.pi * 2))
+        return rad - n * math.pi * 2
+
+    return rad
+
+
+def f_rect(rad):
+    rad = norm_rad(rad)
+
+    if rad < math.pi:
+        return 0
+    return 1
+
+
+def f_swt(rad):
+    rad = norm_rad(rad)
+
+    if rad < math.pi:
+        return rad / math.pi
+    else:
+        return 1 - (rad - math.pi) / math.pi
+
+
+f_map = {
+    "f_sin": math.sin,
+    "f_cos": math.cos,
+    "f_rct": f_rect,
+    "f_swt": f_swt
+}
 
 # GENERATE VERTICES
 
@@ -42,12 +77,11 @@ for ring_cnt in range(0, subdiv_z):
 
         radius_base = r_btm + (r_top - r_btm) * (ring_cnt / subdiv_z)
 
-        radius_xy_add = r_xy_multiplier * math.sin(radians * period_xy)
+        radius_xy_add = r_xy_multiplier * f_map[func_xy](radians * period_xy)
         if abs_mode:
             radius_xy_add = abs(radius_xy_add)
 
-
-        radius_z_add = r_z_multiplier * math.sin((2 * math.pi / subdiv_z) * ring_cnt * period_z)
+        radius_z_add = r_z_multiplier * f_map[func_z]((2 * math.pi / subdiv_z) * ring_cnt * period_z)
         if abs_mode:
             radius_z_add = abs(radius_z_add)
 
