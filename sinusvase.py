@@ -12,14 +12,14 @@ height = 15
 r_xy_multiplier = 0.5
 r_z_multiplier = 0.5
 
-abs_mode = True
+abs_mode = False
 
 subdiv_xy = 60  # points per ring
 subdiv_z = 60  # rings in total
 
-period_xy = 1.2  # periods of sinus func along each ring
-period_z = 1.4 # periods of sinus func along vase edge
-spiral_turns = 1  # how many 360 deg turns around vase
+period_xy = 2  # periods of sinus func along each ring
+period_z = 2  # periods of sinus func along vase edge
+spiral_turns = 2  # how many 360 deg turns around vase
 
 # GLOBALS
 
@@ -27,7 +27,9 @@ rings = []
 
 # GENERATE VERTICES
 
-radian_add_step = (2 * math.pi) * period_z / (subdiv_z * subdiv_xy)
+radian_add_step = 0
+if spiral_turns > 0:
+    radian_add_step = (2 * math.pi) * spiral_turns / subdiv_z
 radian_step_cnt = 0
 
 for ring_cnt in range(0, subdiv_z):
@@ -37,7 +39,6 @@ for ring_cnt in range(0, subdiv_z):
 
     for rd in np.arange(0, 2 * math.pi, 2 * math.pi / subdiv_xy):
         radians = rd + radian_add_step * radian_step_cnt
-        radian_step_cnt += 1
 
         radius_base = r_btm + (r_top - r_btm) * (ring_cnt / subdiv_z)
 
@@ -57,6 +58,7 @@ for ring_cnt in range(0, subdiv_z):
         z = height * ring_cnt / subdiv_z
         this_ring.append((x, y, z))
 
+    radian_step_cnt += 1
     rings.append(this_ring)
 
 
@@ -90,6 +92,10 @@ with open("vase.stl", "w") as file:
     for z in range(1, subdiv_z):
         for idx in range(0, subdiv_xy):
             quad(rings[z][idx], rings[z][idx - 1], rings[z - 1][idx - 1], rings[z - 1][idx])
+
+    # stitch top of the vase with triangles:
+    for idx in range(0, subdiv_xy):
+        triangle(rings[-1][idx - 1], rings[-1][idx], (0, 0, height))
 
     # stitch bottom of the vase with triangles:
     for idx in range(0, subdiv_xy):
