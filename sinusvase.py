@@ -3,14 +3,17 @@ import numpy as np
 
 # CONFIG
 
-r_top = 5
-r_btm = 2
+# radii
+r_top = 7
+r_btm = 5
+r_xy_multiplier = 0.3
+r_z_multiplier = 0.3
 
-subdiv_xy = 300  # points per ring
-subdiv_z = 30  # rings in total
+subdiv_xy = 60  # points per ring
+subdiv_z = 15  # rings in total
 
 period_xy = 10  # periods of sinus func along each ring
-period_z = 5  # periods of sinus func along vase edge
+period_z = 5 # periods of sinus func along vase edge
 spiral_turns = 3  # how many 360 deg turns around vase
 
 # GLOBALS
@@ -32,8 +35,8 @@ for z in range(0, subdiv_z):
         radian_step_cnt += 1
 
         radius_base = r_btm + (r_top - r_btm) * (z / subdiv_z)
-        radius_xy_add = math.sin(radians * period_xy)
-        radius_z_add = math.sin((2 * math.pi / subdiv_z) * z * period_z)
+        radius_xy_add = r_xy_multiplier * math.sin(radians * period_xy)
+        radius_z_add = r_z_multiplier * math.sin((2 * math.pi / subdiv_z) * z * period_z)
 
         radius = radius_base + radius_xy_add + radius_z_add
 
