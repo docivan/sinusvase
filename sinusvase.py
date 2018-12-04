@@ -9,7 +9,7 @@ r_btm = 5
 r_xy_multiplier = 0.3
 r_z_multiplier = 0.3
 
-subdiv_xy = 60  # points per ring
+subdiv_xy = 400  # points per ring
 subdiv_z = 15  # rings in total
 
 period_xy = 10  # periods of sinus func along each ring
