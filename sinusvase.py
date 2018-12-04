@@ -6,15 +6,20 @@ import numpy as np
 # radii
 r_top = 7
 r_btm = 5
-r_xy_multiplier = 0.3
-r_z_multiplier = 0.3
 
-subdiv_xy = 400  # points per ring
-subdiv_z = 15  # rings in total
+height = 15
 
-period_xy = 10  # periods of sinus func along each ring
-period_z = 5 # periods of sinus func along vase edge
-spiral_turns = 3  # how many 360 deg turns around vase
+r_xy_multiplier = 0.5
+r_z_multiplier = 0.5
+
+abs_mode = True
+
+subdiv_xy = 60  # points per ring
+subdiv_z = 60  # rings in total
+
+period_xy = 1.2  # periods of sinus func along each ring
+period_z = 1.4 # periods of sinus func along vase edge
+spiral_turns = 1  # how many 360 deg turns around vase
 
 # GLOBALS
 
@@ -25,8 +30,8 @@ rings = []
 radian_add_step = (2 * math.pi) * period_z / (subdiv_z * subdiv_xy)
 radian_step_cnt = 0
 
-for z in range(0, subdiv_z):
-    print("Generating ring", z + 1, "out of", subdiv_z)
+for ring_cnt in range(0, subdiv_z):
+    print("Generating ring", ring_cnt + 1, "out of", subdiv_z)
 
     this_ring = []
 
@@ -34,14 +39,22 @@ for z in range(0, subdiv_z):
         radians = rd + radian_add_step * radian_step_cnt
         radian_step_cnt += 1
 
-        radius_base = r_btm + (r_top - r_btm) * (z / subdiv_z)
+        radius_base = r_btm + (r_top - r_btm) * (ring_cnt / subdiv_z)
+
         radius_xy_add = r_xy_multiplier * math.sin(radians * period_xy)
-        radius_z_add = r_z_multiplier * math.sin((2 * math.pi / subdiv_z) * z * period_z)
+        if abs_mode:
+            radius_xy_add = abs(radius_xy_add)
+
+
+        radius_z_add = r_z_multiplier * math.sin((2 * math.pi / subdiv_z) * ring_cnt * period_z)
+        if abs_mode:
+            radius_z_add = abs(radius_z_add)
 
         radius = radius_base + radius_xy_add + radius_z_add
 
         x = radius * math.cos(rd)
         y = radius * math.sin(rd)
+        z = height * ring_cnt / subdiv_z
         this_ring.append((x, y, z))
 
     rings.append(this_ring)
