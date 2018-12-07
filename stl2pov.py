@@ -7,7 +7,7 @@ if len(sys.argv) != 3:
 
 with open(sys.argv[1], "r") as infile:
     with open(sys.argv[2], "w") as outfile:
-        outfile.write("mesh{")
+        outfile.write("mesh{\n")
         buffer = []
 
         for line in infile:
