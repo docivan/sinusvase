@@ -1,0 +1,22 @@
+{
+  // radii
+  "r_top" : 7,
+  "r_btm" : 5,
+
+  "height" : 15,
+
+  "r_xy_multiplier" : 0.5,
+  "r_z_multiplier" : 0.5,
+
+  "abs_mode" : "True",
+
+  "subdiv_xy" : 60,  // points per ring
+  "subdiv_z" : 60,  // rings in total
+
+  "func_xy" : "f_sin",
+  "func_z" : "f_swt",
+
+  "period_xy" : 0,  //periods of func along each ring
+  "period_z" : 2,  // periods of func along vase edge
+  "spiral_turns" : 0.5  // how many 360 deg turns around vase
+}

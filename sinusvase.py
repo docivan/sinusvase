@@ -1,28 +1,18 @@
 import math
 import numpy as np
+import sys
+import json
+
+if len(sys.argv) != 2:
+    print("Usage:", sys.argv[0],"config.json")
+    quit()
 
 # CONFIG
 
-# radii
-r_top = 7
-r_btm = 5
-
-height = 15
-
-r_xy_multiplier = 0.5
-r_z_multiplier = 0.5
-
-abs_mode = True
-
-subdiv_xy = 60  # points per ring
-subdiv_z = 60  # rings in total
-
-func_xy = "f_sin"
-func_z = "f_swt"
-
-period_xy = 0  # periods of func along each ring
-period_z = 2  # periods of func along vase edge
-spiral_turns = 0.5  # how many 360 deg turns around vase
+config = None
+with open(sys.argv[1], "r") as f:
+    # NB! this will fail if // is contained within a comment
+    config = json.loads("\n".join(line.split("//")[0].replace("\n", "") for line in f.readlines()))
 
 # GLOBALS
 
@@ -63,33 +53,33 @@ f_map = {
 # GENERATE VERTICES
 
 radian_add_step = 0
-if spiral_turns > 0:
-    radian_add_step = (2 * math.pi) * spiral_turns / subdiv_z
+if config["spiral_turns"] > 0:
+    radian_add_step = (2 * math.pi) * config["spiral_turns"] / config["subdiv_z"]
 radian_step_cnt = 0
 
-for ring_cnt in range(0, subdiv_z):
-    print("Generating ring", ring_cnt + 1, "out of", subdiv_z)
+for ring_cnt in range(0, config["subdiv_z"]):
+    print("Generating ring", ring_cnt + 1, "out of", config["subdiv_z"])
 
     this_ring = []
 
-    for rd in np.arange(0, 2 * math.pi, 2 * math.pi / subdiv_xy):
+    for rd in np.arange(0, 2 * math.pi, 2 * math.pi / config["subdiv_xy"]):
         radians = rd + radian_add_step * radian_step_cnt
 
-        radius_base = r_btm + (r_top - r_btm) * (ring_cnt / subdiv_z)
+        radius_base = config["r_btm"] + (config["r_top"] - config["r_btm"]) * (ring_cnt / config["subdiv_z"])
 
-        radius_xy_add = r_xy_multiplier * f_map[func_xy](radians * period_xy)
-        if abs_mode:
+        radius_xy_add = config["r_xy_multiplier"] * f_map[config["func_xy"]](radians * config["period_xy"])
+        if config["abs_mode"]:
             radius_xy_add = abs(radius_xy_add)
 
-        radius_z_add = r_z_multiplier * f_map[func_z]((2 * math.pi / subdiv_z) * ring_cnt * period_z)
-        if abs_mode:
+        radius_z_add = config["r_z_multiplier"] * f_map[config["func_z"]]((2 * math.pi / config["subdiv_z"]) * ring_cnt * config["period_z"])
+        if config["abs_mode"]:
             radius_z_add = abs(radius_z_add)
 
         radius = radius_base + radius_xy_add + radius_z_add
 
         x = radius * math.cos(rd)
         y = radius * math.sin(rd)
-        z = height * ring_cnt / subdiv_z
+        z = config["height"] * ring_cnt / config["subdiv_z"]
         this_ring.append((x, y, z))
 
     radian_step_cnt += 1
@@ -123,16 +113,16 @@ with open("vase.stl", "w") as file:
     # header
     file.write("solid vase\n")
 
-    for z in range(1, subdiv_z):
-        for idx in range(0, subdiv_xy):
+    for z in range(1, config["subdiv_z"]):
+        for idx in range(0, config["subdiv_xy"]):
             quad(rings[z][idx], rings[z][idx - 1], rings[z - 1][idx - 1], rings[z - 1][idx])
 
     # stitch top of the vase with triangles:
-    for idx in range(0, subdiv_xy):
-        triangle(rings[-1][idx - 1], rings[-1][idx], (0, 0, height))
+    for idx in range(0, config["subdiv_xy"]):
+        triangle(rings[-1][idx - 1], rings[-1][idx], (0, 0, config["height"]))
 
     # stitch bottom of the vase with triangles:
-    for idx in range(0, subdiv_xy):
+    for idx in range(0, config["subdiv_xy"]):
         triangle(rings[0][idx], rings[0][idx - 1], (0, 0, 0))
 
     # footer

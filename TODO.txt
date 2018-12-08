@@ -3,3 +3,6 @@
 [ ] json configs instead? would be cool for different designs
 [V] other function responses than sinus / trigonometry - square? triangle? (just a func with input = 0..2pi, out = 0..1)
 [ ] more functions - something exponential?
+[V] povray output + rendering
+[ ] input config via argparse?
+[ ] batch run + compile all possible rendered combinations
